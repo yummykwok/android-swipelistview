@@ -1127,5 +1127,14 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
             }
         }
     }
-
+    
+    public int getOpenedCount(){
+    	int count = 0;
+    	for(int i=0; i<opened.size(); i++){
+    		if(opened.get(i)){
+    			count++;
+    		}
+    	}
+    	return count;
+    }
 }

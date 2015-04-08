@@ -24,10 +24,13 @@ import android.database.DataSetObserver;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -192,8 +195,8 @@ public class SwipeListView extends ListView {
             swipeMode = styled.getInt(R.styleable.SwipeListView_swipeMode, SWIPE_MODE_BOTH);
             swipeActionLeft = styled.getInt(R.styleable.SwipeListView_swipeActionLeft, SWIPE_ACTION_REVEAL);
             swipeActionRight = styled.getInt(R.styleable.SwipeListView_swipeActionRight, SWIPE_ACTION_REVEAL);
-            swipeOffsetLeft = styled.getDimension(R.styleable.SwipeListView_swipeOffsetLeft, 0);
-            swipeOffsetRight = styled.getDimension(R.styleable.SwipeListView_swipeOffsetRight, 0);
+            swipeOffsetLeft = styled.getDimension(R.styleable.SwipeListView_swipeOffsetLeft, -1);
+            swipeOffsetRight = styled.getDimension(R.styleable.SwipeListView_swipeOffsetRight, -1);
             swipeOpenOnLongPress = styled.getBoolean(R.styleable.SwipeListView_swipeOpenOnLongPress, true);
             swipeAnimationTime = styled.getInteger(R.styleable.SwipeListView_swipeAnimationTime, 0);
             swipeCloseAllItemsWhenMoveList = styled.getBoolean(R.styleable.SwipeListView_swipeCloseAllItemsWhenMoveList, true);
@@ -211,6 +214,23 @@ public class SwipeListView extends ListView {
             if (swipeFrontView == 0 || swipeBackView == 0) {
                 throw new RuntimeException(String.format("You forgot the attributes swipeFrontView or swipeBackView. You can add this attributes or use '%s' and '%s' identifiers", SWIPE_DEFAULT_FRONT_VIEW, SWIPE_DEFAULT_BACK_VIEW));
             }
+        }
+
+        if ( (swipeMode == SWIPE_MODE_LEFT) && 
+        			(swipeOffsetLeft < 0) &&
+        			(swipeOffsetRight >= 0) ) {
+        	swipeOffsetLeft = getContext().getResources().getDisplayMetrics().widthPixels - swipeOffsetRight;
+        } else if ( (swipeMode == SWIPE_MODE_RIGHT) && 
+	    			(swipeOffsetRight < 0) &&
+	    			(swipeOffsetLeft >= 0) ) {
+        	swipeOffsetRight = getContext().getResources().getDisplayMetrics().widthPixels - swipeOffsetLeft;
+        } else {
+        	if (swipeOffsetLeft == -1) {
+        		swipeOffsetLeft = 0;
+        	}
+        	if (swipeOffsetRight == -1) {
+        		swipeOffsetRight = 0;
+        	}
         }
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
@@ -251,6 +271,9 @@ public class SwipeListView extends ListView {
         }
     }
 
+    public int getOpenedCount(){
+    	return touchListener.getOpenedCount();
+    }
     /**
      * Get if item is selected
      *
